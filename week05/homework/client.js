@@ -102,7 +102,7 @@ class ResponseParser {
     }
     get response() {
         const matchRes = this.statusline.match(/HTTP\/1.1 ([0-9]+) ([\s\S]+)/);
-        console.log("matchRes:", matchRes);
+        // console.log("matchRes:", matchRes);
         return {
             statusCode: RegExp.$1,
             statusText: RegExp.$2,
@@ -210,8 +210,11 @@ class ChunkedBodyParser {
                     this.current = this.WAITING_CHUNK_LENGTH_END;
                 } else {
                     // 将数字字符串转换成数字 "123"=>123
-                    this.length *= 10;
-                    this.length += char.charCodeAt(0) - "0".charCodeAt(0);
+                    // 这里是10进制， 但是一般http响应体的body部分都是16进制
+                    // this.length *= 10;
+                    // this.length += char.charCodeAt(0) - "0".charCodeAt(0);
+                    this.length *= 16;
+                    this.length += parseInt(char, 16);
                 }
                 break;
             case this.WAITING_CHUNK_LENGTH_END:
