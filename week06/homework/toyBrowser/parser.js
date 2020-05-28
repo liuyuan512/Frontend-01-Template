@@ -1,0 +1,230 @@
+const EOF = Symbol("EOF"); // End Of File
+
+let currentToken = {
+    tagName: "",
+    type: "",
+    isSelfClosing: false,
+};
+let currentAttribute = {
+    name: "",
+    value: "",
+};
+
+// 输出token
+function emit(token) {
+    if (token.type !== "text") console.log(token);
+}
+
+// 开始解析html <html> sda</html>
+function data(c) {
+    if (c === "<") {
+        return tagOpen;
+    } else if (c === EOF) {
+        emit({
+            type: "EOF",
+        });
+        return;
+    } else {
+        emit({
+            type: "text",
+            content: c,
+        });
+        return data;
+    }
+}
+
+// 进入标签 <html> sda</html>
+function tagOpen(c) {
+    if (c === "/") {
+        return endTagOpen;
+    } else if (c.match(/^[a-zA-Z]$/)) {
+        currentToken = {
+            type: "startTag",
+            tagName: "",
+        };
+        return tagName(c);
+    } else {
+        emit({
+            type: "text",
+            content: c,
+        });
+        return;
+    }
+}
+
+// 结束标签 <html> sda</html>
+function endTagOpen(c) {
+    if (c.match(/^[a-zA-Z]$/)) {
+        currentToken = {
+            type: "endTag",
+            tagName: "",
+        };
+        return tagName(c);
+    } else if (c === ">") {
+    } else if (c === EOF) {
+    } else {
+    }
+}
+
+// 进入标签名 <html en="len">sda</html>
+function tagName(c) {
+    if (c.match(/^[\t\n\f ]$/)) {
+        return beforeAttributeName;
+    } else if (c === "/") {
+        return selfClosingStartTag;
+    } else if (c.match(/^[a-zA-Z]$/)) {
+        currentToken.tagName += c;
+        return tagName;
+    } else if (c === ">") {
+        emit(currentToken);
+        return data;
+    } else {
+        currentToken.tagName += c;
+        return tagName;
+    }
+}
+
+// 进入标签属性名 <html en="len">sda</html>
+function beforeAttributeName(c) {
+    if (c.match(/^[\t\n\f ]$/)) {
+        return beforeAttributeName;
+    } else if (c === ">") {
+        return data;
+    } else if (c === "=") {
+        // return beforeAttributeName;
+    } else {
+        // 初始化currentAttribute
+        currentAttribute = {
+            name: "",
+            value: "",
+        };
+        return attributeName(c);
+    }
+}
+
+// 开始解析属性名 <html en="len">sda</html>  <div class  ="a">adf</div>
+function attributeName(c) {
+    if (c.match(/^[\t\n\f ]$/)) {
+        return afterAttributeName(c);
+    } else if (c === "=") {
+        return beforeAttributeValue;
+    } else if (c.match(/^[a-zA-Z]$/)) {
+        currentAttribute.name += c;
+        return attributeName;
+    }
+}
+
+//解析属性名结束 <div class ="a">adf</div>
+function afterAttributeName(c) {
+    if (c.match(/^[\t\n\f ]$/)) {
+        return afterAttributeName;
+    } else if (c === "/") {
+        return selfClosingStartTag;
+    } else if (c === "=") {
+        return beforeAttributeValue;
+    } else if (c === ">") {
+    }
+}
+
+// 开始解析属性值 <div class  = "a"/>adf</div>
+function beforeAttributeValue(c) {
+    if (c.match(/^[\t\n\f ]$/)) {
+        return beforeAttributeValue;
+    } else if (c === '"') {
+        return doubleQuotedAttributeValue;
+    } else if (c === "'") {
+        return singleQuotedAttributeValue;
+    } else if (c === ">") {
+        // return
+    } else {
+        return unquotedAttributeValue(c);
+    }
+}
+
+// 双引号 值  <div class  = "a"/>adf</div>
+function doubleQuotedAttributeValue(c) {
+    if (c === '"') {
+        // 再次遇到双引号代表属性值解析完毕
+        currentToken[currentAttribute.name] = currentAttribute.value;
+        return afterQuotedAttributeValue;
+    } else if (c === "\u0000") {
+    } else if (c === EOF) {
+    } else {
+        currentAttribute.value += c;
+        return doubleQuotedAttributeValue;
+    }
+}
+
+// 单引号 值  <div class  = 'a'/>adf</div>
+function singleQuotedAttributeValue(c) {
+    if (c === "'") {
+        // 再次遇到单引号代表属性值解析完毕
+        currentToken[currentAttribute.name] = currentAttribute.value;
+        return afterQuotedAttributeValue;
+    } else if (c === "\u0000") {
+    } else if (c === EOF) {
+    } else {
+        currentAttribute.value += c;
+        return singleQuotedAttributeValue;
+    }
+}
+
+// 属性值解析完成后的状态 <div class  = 'a' >adf</div>
+function afterQuotedAttributeValue(c) {
+    if (c.match(/^[\t\n\f ]$/)) {
+        return beforeAttributeName;
+    } else if (c === "/") {
+        currentToken[currentAttribute.name] = currentAttribute.value;
+        return selfClosingStartTag;
+    } else if (c === ">") {
+        // 此标签的全部属性解析完成
+        currentToken[currentAttribute.name] = currentAttribute.value;
+        emit(currentToken);
+        return data;
+    } else if (c === EOF) {
+    } else {
+        currentAttribute.value += c;
+        return doubleQuotedAttributeValue; // ??? 为何不考虑单引号
+    }
+}
+
+// 自封闭标签 <html en="len"/>
+function selfClosingStartTag(c) {
+    if (c === ">") {
+        currentToken.isSelfClosing = true;
+        emit(currentToken);
+        return data;
+    } else if (c === EOF) {
+    } else {
+    }
+}
+
+// 无引号的属性值 <div class = abc >adf</div>
+function unquotedAttributeValue(c) {
+    if (c.match(/^[\t\n\f ]$/)) {
+        currentToken[currentAttribute.name] = currentAttribute.value;
+        return beforeAttributeName;
+    } else if (c === "/") {
+        currentToken[currentAttribute.name] = currentAttribute.value;
+        return selfClosingStartTag;
+    } else if (c === ">") {
+        currentToken[currentAttribute.name] = currentAttribute.value;
+        emit(currentToken);
+        return data;
+    } else if (c === "\u0000") {
+    } else if (c === "'" || c === '"' || c === "<" || c === "=" || c === "`") {
+    } else if (c === EOF) {
+    } else {
+        currentAttribute.value += c;
+        return unquotedAttributeValue;
+    }
+}
+
+module.exports.parseHTML = function (html) {
+    console.log("html:", html);
+    let state = data;
+    for (let c of html) {
+        state = state(c);
+    }
+    state = state(EOF);
+};
