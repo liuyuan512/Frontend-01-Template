@@ -264,7 +264,7 @@ void (async function () {
     });
     const response = await request.send();
     // console.log("response:", response);
-    parseHTML(response.body);
+    console.log(parseHTML(response.body));
     // console.log("parseHTML:", parseHTML(response));
     // console.log("parseHTML:", parseHTML);
 })();

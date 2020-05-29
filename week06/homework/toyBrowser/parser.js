@@ -10,9 +10,52 @@ let currentAttribute = {
     value: "",
 };
 
+let currentTextNode = null;
+
+let stack = [{ type: "document", children: [] }];
+
 // 输出token
 function emit(token) {
-    if (token.type !== "text") console.log(token);
+    let top = stack[stack.length - 1];
+    if (token.type === "startTag") {
+        let element = {
+            type: "element",
+            children: [],
+            attributes: [],
+        };
+        for (let i in token) {
+            if (i === "type" || i === "tagName" || i === "isSelfClosing")
+                continue;
+            element.attributes.push({
+                name: i,
+                value: token[i],
+            });
+        }
+        element.tagName = token.tagName;
+        top.children.push(element);
+        element.parent = top;
+
+        if (!token.isSelfClosing) stack.push(element);
+        currentTextNode = null;
+        // console.log(element);
+    } else if (token.type === "endTag") {
+        if (top.tagName !== token.tagName) {
+            throw new Error("Tag start end donnt match!");
+        } else {
+            stack.pop();
+        }
+        currentTextNode = null;
+    } else if (token.type === "text") {
+        if (currentTextNode === null) {
+            currentTextNode = {
+                type: "text",
+                content: "",
+            };
+            top.children.push(currentTextNode);
+        }
+        currentTextNode.content += token.content;
+    }
+    // console.log(stack[stack.length - 1]);
 }
 
 // 开始解析html <html> sda</html>
@@ -221,10 +264,12 @@ function unquotedAttributeValue(c) {
 }
 
 module.exports.parseHTML = function (html) {
-    console.log("html:", html);
+    // console.log("html:", html);
     let state = data;
     for (let c of html) {
         state = state(c);
     }
     state = state(EOF);
+    console.log(stack[0].children[1].children[1].children[1].children[0]);
+    return stack[0];
 };
