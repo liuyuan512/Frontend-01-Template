@@ -16,7 +16,7 @@
             "request": "launch",
             "name": "Launch Program",
             "skipFiles": ["<node_internals>/**"],
-            "program": "${workspaceFolder}/week06/homework/toyBrowser/client.js"
+            "program": "${workspaceFolder}/week06/homework/toyBrowser-css/client.js"
         }
     ]
 }
