@@ -342,7 +342,7 @@ function computeCSS(element) {
 /**
  * @author liuyuan
  * @des 根据选择器确定优先级四元数组，比如 selector = "div div.container #myid", 优先级数组为p = [0,3,1,1]=
- * 			其中p[0]代表行内样式的个数，最大为1。p[3]代表选择器的个数，以空格分隔，有几个就为几。p[2]代表类选择器的个数，
+ * 			其中p[0]代表行内样式的个数，最大为1。p[3]代表标签选择器的个数，比如div，有几个就为几。p[2]代表类选择器的个数，
  * 			有几个就是几，p[1]为id选择器的个数，为几就是几。权重顺序为p[0]>p[1]>p[2]>p[3]
  * @param {string} selector 选择器字符串
  * @return {array} 计算好的优先级四元数组
