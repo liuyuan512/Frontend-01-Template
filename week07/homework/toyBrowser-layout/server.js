@@ -18,23 +18,27 @@ const server = http.createServer((req, res) => {
 <html maaa=a>
 <head>
 <style>
-	body div #myid{
-		width:100px;
-		background-color:#ff5000
+	#container{
+		display:flex;
+		width:500px;
+		height:300px;
+		background-color:rgb(255,255,255);
 	}
-	body div img{
-		width:30px;
-		background-color:#ff1111
+	#container #myid{
+		width:200px;
+		height:100px;
+		background-color:rgb(255,0,0);
 	}
-	body div {
-		display: flex
+	#container .c1 {
+		flex: 1;
+		background-color:rgb(0,255,0);
 	}
 </style>
 </head>
 <body>
-		<div>
-				<img id="myid"/>
-				<img/>
+		<div id="container">
+				<div id="myid"/>
+				<div class="c1"/>
 		</div>
 </body>
 </html>

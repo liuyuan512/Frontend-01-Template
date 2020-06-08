@@ -37,7 +37,7 @@ function emit(token) {
 
     // 在这里开始计算css; 收集到css就开始计算
     computeCSS(element);
-    console.log("element.computedStyle:", element);
+    // console.log("element.computedStyle:", element);
 
     layout(element);
 
@@ -395,13 +395,13 @@ function match(element, selector) {
   // id选择器
   if (type === "#") {
     const attr = element.attributes.filter(item => item.name === "id")[0];
-    if (attr && attr.value === selector.replace(",", "")) {
+    if (attr && attr.value === selector.replace("#", "")) {
       return true;
     }
   } else if (type === ".") {
     // 类选择器
     const attr = element.attributes.filter(item => item.name === "class")[0];
-    if (attr && attr.value === selector.replace(",", "")) {
+    if (attr && attr.value === selector.replace(".", "")) {
       return true;
     }
   } else {
