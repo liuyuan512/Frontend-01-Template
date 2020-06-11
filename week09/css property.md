@@ -278,5 +278,3 @@
 ### 268: "vector-effect"
 
 ### 269: "paint-order"
-
-_XMind - Trial Version_
