@@ -1,0 +1,39 @@
+<!-- <!DOCTYPE html> -->
+<style>
+    .container {
+        width: 700px;
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        align-items: center;
+    }
+    .cell {
+        background-color: gray;
+        width: 6px;
+        height: 6px;
+        border-bottom: solid 1px white;
+        border-right: solid 1px white;
+    }
+</style>
+<div class="container"></div>
+<script>
+    const arr = new Array(10000).fill(0);
+    let mouseFlag = false;
+    const container = document.querySelector(".container");
+    for (let i = 0; i < 100; i++) {
+        for (let j = 0; j < 100; j++) {
+            const cell = document.createElement("div");
+
+            cell.classList.add("cell");
+            cell.addEventListener("mouseover", () => {
+                if (mouseFlag) {
+                    cell.style.backgroundColor = "black";
+                }
+            });
+            container.appendChild(cell);
+        }
+    }
+
+    document.addEventListener("mousedown", () => (mouseFlag = true));
+    document.addEventListener("mouseup", () => (mouseFlag = false));
+</script>

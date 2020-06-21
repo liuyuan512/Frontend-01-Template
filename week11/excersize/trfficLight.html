@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>异步编程</title>
+    </head>
+    <body>
+        <style>
+            .lightContainer {
+                display: flex;
+                position: absolute;
+                flex-direction: column;
+                left: 200px;
+                width: 200px;
+                height: 600px;
+                justify-content: space-around;
+            }
+            .light {
+                border-radius: 50%;
+                width: 100px;
+                height: 100px;
+            }
+            .yellowLight {
+                background-color: yellow;
+            }
+            .redLight {
+                background-color: red;
+            }
+            .greenLight {
+                background-color: green;
+            }
+        </style>
+        <div class="lightContainer">
+            <div class="light yellowLight"></div>
+            <div class="light redLight"></div>
+            <div class="light greenLight"></div>
+        </div>
+        <script>
+            function light(lightClass, color) {
+                this.redlight = document.querySelector(`.redLight`);
+                this.yellowlight = document.querySelector(`.yellowLight`);
+                this.greenlight = document.querySelector(`.greenLight`);
+                this.colorDown = "black";
+            }
+            light.prototype.lightUp = function (light, color) {
+                light.style.backgroundColor = color;
+            };
+            light.prototype.lightDown = function (light) {
+                light.style.backgroundColor = this.colorDown;
+            };
+
+            light.prototype.init = function () {
+                this.lightDown(this.redlight);
+                this.lightDown(this.yellowlight);
+                this.lightDown(this.greenlight);
+            };
+
+            const trafficLight = new light();
+            trafficLight.init();
+
+            /**
+             * @author liuyuan
+             * @des 休眠函数
+             * @param {number} time 毫秒
+             */
+            function sleep(time) {
+                return new Promise((res, rej) => {
+                    setTimeout(res, time);
+                });
+            }
+
+            /**
+             * @author liuyuan
+             * @des 红绿灯算法， 红灯5s,黄灯2s,绿灯10s
+             * @return {}
+             */
+            async function signalLight(light) {
+                light.lightUp(light.redlight, "red");
+                await sleep(5000);
+                light.lightDown(light.redlight);
+                light.lightUp(light.yellowlight, "yellow");
+                await sleep(2000);
+                light.lightDown(light.yellowlight);
+                light.lightUp(light.greenlight, "green");
+                await sleep(10000);
+                light.lightDown(light.greenlight);
+                debugger;
+            }
+            signalLight(trafficLight);
+
+            // while (true) {
+            //     signalLight(trafficLight);
+            // }
+        </script>
+    </body>
+</html>
