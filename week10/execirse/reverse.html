@@ -1,0 +1,58 @@
+<div id="a">
+    <span>1</span>
+    <p>2</p>
+    <a>3</a>
+    <div>4</div>
+</div>
+
+<script>
+    // 实现元素子节点的逆序
+    const element = document.querySelector("#a");
+    // 考查appendChild特性，它会自动移除所有添加的node
+    /**
+     * @author liuyuan
+     * @des 实现子节点的逆序
+     * 1. 常规解法
+     */
+    // void (function reverseElementChildren(element) {
+    //     // const chilrenEle = Array.prototype.slice.call(element.children);
+    //     const chilrenEle = Array.prototype.slice.call(element.childNodes);
+    //     chilrenEle.reverse();
+    //     console.log(chilrenEle);
+    //     for (let child of chilrenEle) {
+    //         // element.removeChild(child);
+    //         element.appendChild(child);
+    //     }
+    // })(element);
+
+    /**
+     * @author liuyuan
+     * @des 2. 高级解法
+     */
+    // void (function reverseElementChildren(element) {
+    //     // let l = element.children.length;
+    //     let l = element.childNodes.length;
+    //     while (l-- > 0) {
+    //         // element.appendChild(element.children[l]);
+    //         element.appendChild(element.childNodes[l]);
+    //     }
+    // })(element);
+
+    /**
+     * @author liuyuan
+     * @des 3. 最高级解法，只有两次重排，利用range生成fragment，在内存里逆序好fragment
+     */
+    void (function reverseElementChildren(element) {
+				// let l = element.children.length;
+				const range = document.createRange();
+				range.selectNodeContents(element);
+				const fragment = range.extractContents();
+
+        let l = fragment.childNodes.length;
+        while (l-- > 0) {
+            // element.appendChild(element.children[l]);
+            fragment.appendChild(fragment.childNodes[l]);
+				}
+				element.appendChild(fragment)
+    })(element);
+</script>

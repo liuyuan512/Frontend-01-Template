@@ -1,0 +1,14 @@
+<div id="a">0123<span style="background-color: greenyellow;">4567</span>0123456789</div>
+
+<script>
+    // rangeAPI的使用
+    const element = document.querySelector("#a");
+    // 考查appendChild特性，它会自动移除所有添加的node
+
+    const range = new Range();
+
+    range.setStart(element.childNodes[0], 1);
+    range.setEnd(element.childNodes[2], 1);
+
+    // range.extractContents()   // 返回一个fragment
+</script>

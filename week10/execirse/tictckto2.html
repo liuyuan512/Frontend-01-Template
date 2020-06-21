@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta
+            name="viewport"
+            content="width=<device-width>, initial-scale=1.0"
+        />
+        <title>Document</title>
+    </head>
+    <body>
+        <style>
+            .container {
+                width: 310px;
+                display: flex;
+                flex-wrap: wrap;
+                flex-direction: row;
+                justify-content: start;
+                align-items: center;
+            }
+            .cell {
+                border-bottom: 1px solid white;
+                border-right: 1px solid white;
+                width: 100px;
+                height: 100px;
+                background-color: yellowgreen;
+                text-align: center; /*文字水平居中*/
+                line-height: 100px; /*文字竖直居中*/
+                font-size: 50px;
+            }
+        </style>
+        <div class="container"></div>
+        <script>
+            let pattern = [
+                [0, 0, 0],
+                [2, 0, 1],
+                [0, 0, 0],
+            ];
+
+            function getLeftSpace() {
+                let leftSpace = pattern.reduce((pre, cur) => {
+                    return pre + cur.filter((item) => item === 0).length;
+                }, 0);
+
+                return leftSpace;
+            }
+
+            function show() {
+                const board = document.querySelector(".container");
+                board.innerHTML = "";
+                for (let i = 0; i < 3; i++) {
+                    for (let j = 0; j < 3; j++) {
+                        const cell = document.createElement("div");
+                        board.appendChild(cell);
+                        cell.classList.add("cell");
+                        cell.innerText =
+                            pattern[i][j] === 2
+                                ? "❌"
+                                : pattern[i][j] === 1
+                                ? "⭕️"
+                                : "";
+                        cell.addEventListener("click", () => move(j, i));
+                    }
+                }
+            }
+
+            show();
+            let color = 1;
+            function move(x, y) {
+                if (pattern[y][x]) return;
+                pattern[y][x] = color;
+                show();
+
+                if (check(pattern, color)) {
+                    const winner =
+                        color === 1 ? "⭕️" : color === 2 ? "❌" : "nobody";
+                    setTimeout(() => {
+                        alert(`${winner}wins!`);
+                    }, 10);
+                }
+                if (willWin(pattern, color)) {
+                    const winner =
+                        color === 1 ? "⭕️" : color === 2 ? "❌" : "nobody";
+                    console.log(`${winner}will win!!!`);
+                }
+                color = 3 - color;
+                const rule = color === 1 ? "⭕️" : "❌";
+                const bestC = bestChoice(pattern, color);
+                console.log(rule + "bestChoice:", bestC);
+                const leftSpace = getLeftSpace();
+                console.log("leftSpace:", leftSpace);
+                if (leftSpace === 0) {
+                    setTimeout(() => {
+                        alert(`peace!!! nobody wins!!!!`);
+                    }, 10);
+                }
+            }
+
+            /**
+             * @author liuyuan
+             * @des 判断胜负, 横排: 每一排循环都先假定win为true。
+                    如果第一排有不等于给懂color的，
+                    则跳出当前排的列循环，检测win为false，不执行返回，
+                    继续下一排的循环。
+             * @param {}
+             * @param {}
+             * @return {}
+             */
+            function check(pattern, color) {
+                for (let i = 0; i < 3; i++) {
+                    let win = true;
+                    // 横排
+                    for (let j = 0; j < 3; j++) {
+                        if (pattern[i][j] !== color) {
+                            win = false;
+                            break;
+                        }
+                    }
+                    if (win) return true;
+                }
+                // 竖列
+                for (let i = 0; i < 3; i++) {
+                    let win = true;
+                    for (let j = 0; j < 3; j++) {
+                        if (pattern[j][i] !== color) {
+                            win = false;
+                            break;
+                        }
+                    }
+                    if (win) return true;
+                }
+                // 左对角线
+                for (let i = 0; i < 3; i++) {
+                    let win = true;
+                    for (let j = 0; j < 3; j++) {
+                        if (pattern[j][j] !== color) {
+                            win = false;
+                            break;
+                        }
+                    }
+                    if (win) return true;
+                }
+                // 右对角线
+                for (let i = 0; i < 3; i++) {
+                    let win = true;
+                    for (let j = 0; j < 3; j++) {
+                        if (pattern[j][2 - j] !== color) {
+                            win = false;
+                            break;
+                        }
+                    }
+                    if (win) return true;
+                }
+                return false;
+            }
+
+            function clone(obj) {
+                return JSON.parse(JSON.stringify(obj));
+            }
+            /**
+             * @author liuyuan
+             * @des 预判一步检测下子以后是否会赢
+             * @param {}
+             * @param {}
+             * @return {}
+             */
+            function willWin(pattern, color) {
+                for (let i = 0; i < 3; i++) {
+                    for (let j = 0; j < 3; j++) {
+                        if (pattern[i][j] !== 0) continue;
+                        const temp = clone(pattern);
+                        temp[i][j] = color;
+                        if (check(temp, color)) return [j, i];
+                    }
+                }
+                return null;
+            }
+
+            /**
+             * @author liuyuan
+             * @des 检测下完棋子是否会输
+             * @param {}
+             * @param {}
+             * @return {}
+             */
+
+            /**
+             * @author liuyuan
+             * @des 最佳走法
+             * @param {}
+             * @param {}
+             * @return {}
+             */
+            function bestChoice(pattern, color) {
+                // 1. 如果我方下一步要赢，则这一步为最佳选择
+                let point = null;
+                if ((point = willWin(pattern, color))) {
+                    return {
+                        point: point,
+                        result: 1,
+                    };
+                }
+
+                // 2. 如果对方最佳的选择(即我方最坏的选择)，
+                // 如果我走这步棋会使的即便对方最佳走法都会让我赢，那么这步棋就是我真的最佳走法
+                let result = -1;
+                for (let i = 0; i < 3; i++) {
+                    for (let j = 0; j < 3; j++) {
+                        if (pattern[i][j] !== 0) continue;
+                        const temp = clone(pattern);
+                        temp[i][j] = color;
+                        const opp = bestChoice(temp, 3 - color);
+                        if (-opp.result > result) {
+                            point = [j, i];
+                            result = -opp.result;
+                        }
+                    }
+                }
+
+                return {
+                    point: point,
+                    result: point ? result : 0,
+                };
+            }
+        </script>
+    </body>
+</html>
