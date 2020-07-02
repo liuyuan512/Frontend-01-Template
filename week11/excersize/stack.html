@@ -50,7 +50,8 @@
                     cell.addEventListener("mouseover", () => {
                         if (mouseFlag) {
                             cell.style.backgroundColor = "black";
-                            map[j * 100 + i] = 1;
+                            console.log(`map[${j * 100 + i}]=1`);
+                            map[i * 100 + j] = 1;
 
                             console.log(map[j * 100 + i]);
                         }
@@ -76,20 +77,26 @@
                 // map[end[1] * 100 + end[0]] = 3;
                 map = map.slice();
 
-                let quene = [start];
-                window.quene = quene;
+                let stack = [start];
+                // window.quene = quene;
                 async function insert([x, y]) {
-                    if (map[100 * y + x] !== 0) return;
+                    // console.log(`map[${100 * y + x}]:`, map[100 * y + x]);
+                    if (map[100 * y + x] !== 0) {
+                        return;
+                    }
                     if (x < 0 || y < 0 || x > 100 || y > 100) return;
-                    map[100 * y + x] = 2;
-                    container.children[y * 100 + x].style.backgroundColor =
-                        "lightgreen";
-                    await sleep(10);
-                    quene.push([x, y]);
+                    map[100 * y + x] = 2; // 当前点找到为可通达路径后标记为2，代表已经有路，不需要再次寻找
+                    if (x !== end[0] || y !== end[1]) {
+                        container.children[y * 100 + x].style.backgroundColor =
+                            "lightgreen";
+                    }
+                    await sleep(2);
+                    stack.push([x, y]);
                 }
 
-                while (quene.length) {
-                    let [x, y] = quene.shift();
+                while (stack.length) {
+                    // let [x, y] = stack.shift();
+                    let [x, y] = stack.pop();
                     console.log(x, y);
                     if (x === end[0] && y === end[1]) return true;
 

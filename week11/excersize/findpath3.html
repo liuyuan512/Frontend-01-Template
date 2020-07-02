@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Document</title>
+        <style>
+            .container {
+                width: 700px;
+                height: 100%;
+                display: flex;
+                flex-direction: row;
+                flex-wrap: wrap;
+                align-items: center;
+            }
+            .cell {
+                background-color: gray;
+                width: 6px;
+                height: 6px;
+                border-bottom: solid 1px white;
+                border-right: solid 1px white;
+            }
+            button {
+                position: absolute;
+                left: 750px;
+            }
+        </style>
+    </head>
+    <body>
+        <button>save</button>
+        <div class="container"></div>
+        <script>
+            // 无序数组
+            class Sorted {
+                constructor(data, compare) {
+                    this.data = data;
+                    this.compare = compare || ((a, b) => a - b);
+                }
+
+                // 找出数组里最小值,找到后将数组最后一个值放在最小值所在位置，将最后一个值pop出去
+                take() {
+                    if (!this.data.length) return;
+                    let min = this.data[0];
+                    let minIndex = 0;
+                    for (let i = 1; i < this.data.length; i++) {
+                        if (this.compare(this.data[i], min) < 0) {
+                            min = this.data[i];
+                            minIndex = i;
+                        }
+                    }
+                    this.data[minIndex] = this.data[this.data.length - 1];
+                    this.data.pop();
+                    // console.log("..............min", min);
+                    // console.log("..............minIndex", minIndex);
+                    console.log("min-----", min);
+
+                    return min;
+                }
+
+                insert(v) {
+                    this.data.push(v);
+                }
+
+                get length() {
+                    return this.data.length;
+                }
+            }
+
+            let sourceMap = window.localStorage.sourceMap
+                ? window.localStorage.sourceMap
+                      .split(",")
+                      .map((item) => item * 1)
+                : new Array(10000).fill(0);
+            let map = sourceMap.slice();
+            let mouseFlag = false;
+            const container = document.querySelector(".container");
+            for (let i = 0; i < 100; i++) {
+                for (let j = 0; j < 100; j++) {
+                    const cell = document.createElement("div");
+
+                    cell.classList.add("cell");
+
+                    if (map[i * 100 + j] === 1) {
+                        cell.style.backgroundColor = "black";
+                    }
+                    cell.addEventListener("mouseover", () => {
+                        if (mouseFlag) {
+                            cell.style.backgroundColor = "black";
+                            console.log(`map[${j * 100 + i}]=1`);
+                            map[i * 100 + j] = 1;
+
+                            console.log(map[j * 100 + i]);
+                        }
+                    });
+                    container.appendChild(cell);
+                }
+            }
+
+            document.addEventListener("mousedown", () => (mouseFlag = true));
+            document.addEventListener("mouseup", () => (mouseFlag = false));
+
+            //sleep
+            function sleep(time) {
+                return new Promise((res, rej) => {
+                    setTimeout(res, time);
+                });
+            }
+
+            async function findPath(map, start, end) {
+                container.children[
+                    end[1] * 100 + end[0]
+                ].style.backgroundColor = "red";
+                // map[end[1] * 100 + end[0]] = 3;
+                // map = map.slice();
+
+                function distance(point) {
+                    // return (x - end[0]) ** 2 + (y - end[1]) ** 2;
+                    return (point[0] - end[0]) ** 2 + (point[1] - end[1]) ** 2;
+                }
+                // let quene = [start];
+                let collection = new Sorted(
+                    [start],
+                    (pa, pb) => distance(pa) - distance(pb)
+                );
+                // window.quene = quene;
+                async function insert([x, y], pre) {
+                    // console.log(`map[${100 * y + x}]:`, map[100 * y + x]);
+                    if (map[100 * y + x] !== 0) {
+                        return;
+                    }
+                    if (x < 0 || y < 0 || x > 100 || y > 100) return;
+                    map[100 * y + x] = pre; // 当前点找到为可通达路径后标记为2，代表已经有路，不需要再次寻找
+                    console.log("pre:", pre);
+                    if (x !== end[0] || y !== end[1]) {
+                        container.children[y * 100 + x].style.backgroundColor =
+                            "lightgreen";
+                    }
+                    await sleep(2);
+                    collection.insert([x, y]);
+                }
+
+                while (collection.length) {
+                    let [x, y] = collection.take();
+                    // let [x, y] = stack.pop();
+                    console.log(x, y);
+                    if (x === end[0] && y === end[1]) {
+                        const path = [];
+                        while (x !== start[0] || y !== start[1]) {
+                            path.push([x, y]);
+                            if (x !== end[0] || y !== end[1]) {
+                                container.children[
+                                    y * 100 + x
+                                ].style.backgroundColor = "pink";
+                            }
+                            [x, y] = map[y * 100 + x];
+                        }
+                        return path;
+                    }
+
+                    await insert([x - 1, y], [x, y]);
+                    await insert([x, y - 1], [x, y]);
+                    await insert([x + 1, y], [x, y]);
+                    await insert([x, y + 1], [x, y]);
+
+                    await insert([x - 1, y - 1], [x, y]);
+                    await insert([x - 1, y - 1], [x, y]);
+                    await insert([x + 1, y + 1], [x, y]);
+                    await insert([x + 1, y + 1], [x, y]);
+                }
+                return null;
+            }
+
+            document.querySelector("button").addEventListener("click", () => {
+                window.localStorage.sourceMap = map;
+                console.log("map", map);
+            });
+        </script>
+    </body>
+</html>
