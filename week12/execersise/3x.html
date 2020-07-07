@@ -1,0 +1,62 @@
+<script>
+    const regexp = /([0-9\.]+)|([ ]+)|([\r\n]+)|(\+)|(\-)|(\*)|(\/)/g;
+    const dictionary = [
+        "Number",
+        "Whitespace",
+        "LineTerminator",
+        "+",
+        "-",
+        "*",
+        "/",
+    ];
+
+    function* tokennize(source) {
+        let result = null;
+        let lastIndex = 0;
+        debugger;
+        while (true) {
+            // 匹配
+            lastIndex = regexp.lastIndex;
+            result = regexp.exec(source);
+
+            //判断
+            if (!result) break;
+
+            // 生成token
+            let token = {
+                type: null,
+                value: null,
+            };
+            for (let i = 0; i < dictionary.length; i++) {
+                if (result[i + 1]) {
+                    // console.log(dictionary[i]);
+                    token.type = dictionary[i];
+                }
+
+                token.value = result[0];
+                // console.log(result[0]);
+
+                yield token;
+            }
+        }
+
+        yield { type: "EOF" };
+    }
+
+    function Expression(tokens) {}
+
+    function AdditiveExpression(source) {}
+
+    function MutiplicativeExpression(source) {
+        // console.log(source);
+    }
+
+    let source = [];
+
+    for (let token of tokennize("1024 + 10 * 25")) {
+        console.log(token);
+        source.push(token);
+    }
+
+    MutiplicativeExpression(source);
+</script>
