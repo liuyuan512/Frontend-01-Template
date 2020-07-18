@@ -28,9 +28,6 @@ class MyComponent {
     console.log("config:", config);
     this.children = [];
     this.root = document.createElement("div");
-    this.slot = <div></div>;
-    this.attributes = new Map();
-    this.properties = new Map();
   }
 
   set class(v) {
@@ -38,15 +35,9 @@ class MyComponent {
     console.log("Prent::class", v);
   }
 
-  set title(value) {
-    this.properties.set("title", value);
-  }
-
   setAttribute(name, value) {
     // attribute
-    // this.root.setAttribute(name, value);
-    // this.slot.setAttribute(name, value);
-    this.attributes.set(name, value);
+    this.root.setAttribute(name, value);
     console.log(name, value);
   }
 
@@ -56,25 +47,11 @@ class MyComponent {
     this.children.push(child);
   }
 
-  render() {
-    return (
-      <article>
-        <h1>{this.attributes.get("title")}</h1>
-        <h2>{this.properties.get("title")}</h2>
-        <header> I'm a header</header>
-        {this.slot}
-        <footer>I'm a footer</footer>
-      </article>
-    );
-  }
-
   mountTo(parent) {
-    // parent.appendChild(this.root);
+    parent.appendChild(this.root);
     for (let child of this.children) {
-      // child.mountTo(this.root);
-      this.slot.appendChild(child);
+      child.mountTo(this.root);
     }
-    this.render().mountTo(parent);
   }
 }
 
@@ -110,18 +87,28 @@ class Wrapper {
   }
 }
 
+// class Child {
+//   mountTo(parent) {
+//     parent.appendChild(this.root);
+//     for (let child of this.children) {
+//       child.mountTo(parent);
+//     }
+//   }
+// }
+
 let component = (
   <MyComponent
     id="a"
     class="b"
     style="background-color:red;width:100px;height:100px"
-    title="I'm a title"
   >
     <div>text text text</div>
+    <MyComponent />
+    <MyComponent />
+    <MyComponent />
   </MyComponent>
 );
-// component.class = "asd";
-component.title = "I'm a title2";
+component.class = "asd";
 console.log("component:", component);
 component.mountTo(document.body);
 // component.setAttribute("id", "b");
