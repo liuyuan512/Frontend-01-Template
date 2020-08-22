@@ -18,6 +18,9 @@
   "homepage": "https://github.com/liuyuan512/Frontend-01-Template#readme",
   "dependencies": {},
   "devDependencies": {
+    "@babel/cli": "^7.10.5",
+    "@babel/core": "^7.11.1",
+    "@babel/preset-env": "^7.11.0",
     "husky": "^4.2.5",
     "lint-staged": "^10.2.9"
   },

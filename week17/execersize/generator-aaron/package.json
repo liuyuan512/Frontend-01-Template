@@ -1,0 +1,22 @@
+{
+  "name": "generator-aaron",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "files": [
+    "app",
+    "router"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "yeoman-generator": "^4.11.0",
+    "react": "^16.2.0"
+  },
+  "devDependencies": {
+    "eslint": "^3.15.0"
+  }
+}
